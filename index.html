@@ -1,306 +1,577 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Расписание</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Расписание</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        body {
-            background: #fff;
-            padding: 12px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
+    :root {
+      --primary-color: #007AFF;
+      --secondary-color: #5856D6;
+      --background-light: #F2F2F7;
+      --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      --transition-speed: 0.4s;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 16px;
-            font-size: 20px;
-            color: #2f2f2f;
-        }
+    body {
+      background: var(--background-light);
+      min-height: 100vh;
+      padding: 16px;
+      color: #1D1D1F;
+    }
 
-        .week-toggle {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            padding: 0 4px;
-        }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
 
-        .week-btn {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 12px;
-            background: #f0f2f5;
-            color: #666;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 32px 24px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    }
 
-        .week-btn.active {
-            background: #E8F0FE;
-            color: #1A73E8;
-            font-weight: 500;
-        }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1D1D1F;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
 
-        .day-card {
-            background: #fff;
-            border-radius: 16px;
-            margin-bottom: 16px;
-            border: 1px solid #E8F0FE;
-        }
+    .week-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      padding: 4px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    }
 
-        .day-header {
-            padding: 12px 16px;
-            background: #E8F0FE;
-            color: #1A73E8;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 16px 16px 0 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .week-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      background: transparent;
+      color: #86868B;
+    }
 
-        .day-header::before {
-            content: '📚';
-            font-size: 18px;
-        }
+    .week-btn:hover {
+      background: rgba(0, 122, 255, 0.1);
+      color: var(--primary-color);
+    }
 
-        .lesson {
-            padding: 12px 16px;
-            border-bottom: 1px solid #E8F0FE;
-        }
+    .week-btn.active {
+      background: var(--primary-color);
+      color: white;
+    }
 
-        .lesson:last-child {
-            border-bottom: none;
-        }
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
 
-        .lesson-time {
-            color: #1A73E8;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
+    .day-button {
+      position: relative;
+      padding: 24px;
+      border: none;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      cursor: pointer;
+      transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        .lesson-time::before {
-            content: '🕒';
-            margin-right: 6px;
-        }
+    .day-button:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+      background: rgba(255, 255, 255, 0.95);
+    }
 
-        .lesson-name {
-            color: #2f2f2f;
-            font-size: 15px;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
+    .day-button.active {
+      background: var(--primary-color);
+      color: white;
+    }
 
-        .lesson-location {
-            color: #666;
-            font-size: 13px;
-        }
+    .day-button.active .week-type {
+      color: rgba(255, 255, 255, 0.8);
+    }
 
-        .lesson-location::before {
-            content: '📍';
-            margin-right: 6px;
-        }
+    .day-name {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
 
-        .hidden {
-            display: none;
-        }
+    .today-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #FF3B30;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+    }
 
-        /* Animation for week switching */
-        .timetable {
-            opacity: 1;
-            transition: opacity 0.2s ease;
-        }
+    .schedule-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+      width: 90%;
+      max-width: 600px;
+      animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        .timetable.hidden {
-            opacity: 0;
-        }
+    .lesson {
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      background: rgba(242, 242, 247, 0.8);
+      transition: all var(--transition-speed) ease;
+    }
 
-        /* Current day highlight */
-        .day-card.current-day {
-            border: 2px solid #1A73E8;
-            box-shadow: 0 2px 8px rgba(26, 115, 232, 0.1);
-        }
+    .lesson:last-child {
+      margin-bottom: 0;
+    }
 
-        .current-day .day-header::after {
-            content: '(Сегодня)';
-            font-size: 14px;
-            margin-left: auto;
-            color: #1A73E8;
-        }
-    </style>
+    .lesson:hover {
+      background: rgba(242, 242, 247, 1);
+      transform: scale(1.02);
+    }
+
+    .lesson-time {
+      color: var(--primary-color);
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .lesson-name {
+      color: #1D1D1F;
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .lesson-location {
+      color: #86868B;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .week-type {
+      font-size: 14px;
+      color: #86868B;
+      font-weight: 500;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+
+      .container {
+        padding: 0;
+      }
+
+      .header {
+        padding: 24px 20px;
+        margin-bottom: 20px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .days-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .day-button {
+        padding: 20px;
+      }
+
+      .schedule-container {
+        width: 95%;
+        padding: 20px;
+        margin: 16px;
+      }
+
+      .lesson {
+        padding: 16px;
+      }
+    }
+
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: #000;
+        color: #FFFFFF;
+      }
+
+      .header {
+        background: rgba(28, 28, 30, 0.8);
+      }
+
+      .header h1 {
+        color: #FFFFFF;
+      }
+
+      .week-toggle {
+        background: rgba(28, 28, 30, 0.8);
+      }
+
+      .day-button {
+        background: rgba(28, 28, 30, 0.8);
+        color: #FFFFFF;
+      }
+
+      .day-button:hover {
+        background: rgba(28, 28, 30, 0.95);
+      }
+
+      .schedule-container {
+        background: rgba(28, 28, 30, 0.95);
+      }
+
+      .lesson {
+        background: rgba(44, 44, 46, 0.8);
+      }
+
+      .lesson:hover {
+        background: rgba(44, 44, 46, 1);
+      }
+
+      .lesson-name {
+        color: #FFFFFF;
+      }
+
+      .week-type {
+        color: #98989D;
+      }
+
+      .lesson-location {
+        color: #98989D;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
     <div class="header">
-        <h1>Расписание 📚</h1>
+      <h1>Расписание занятий 📚</h1>
+      <div id="currentWeekIndicator" class="current-week-indicator"></div>
+      <div id="datetimeDisplay" class="datetime-display"></div>
     </div>
 
     <div class="week-toggle">
-        <button class="week-btn active" data-week="upper">Верхняя неделя</button>
-        <button class="week-btn" data-week="lower">Нижняя неделя</button>
+      <button class="week-btn active" data-week="upper">Верхняя неделя</button>
+      <button class="week-btn" data-week="lower">Нижняя неделя</button>
     </div>
 
-    <div id="upper-week" class="timetable">
-        <!-- Upper week days will be populated by JavaScript -->
+    <div class="days-grid">
+      <!-- Day buttons will be populated by JavaScript -->
     </div>
+  </div>
 
-    <div id="lower-week" class="timetable hidden">
-        <!-- Lower week days will be populated by JavaScript -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div id="schedule-display" class="schedule-container">
+      <!-- Selected day schedule will be shown here -->
     </div>
+  </div>
 
-    <script>
-        const schedule = {
-            upper: {
-                'Понедельник': [
-                    { time: '9:50 - 11:30', name: 'ПССИП', location: '2 корпус, 42 ауд.' },
-                    { time: '12:00 - 13:40', name: 'РМП', location: '2 корпус, 42 ауд.' },
-                    { time: '13:50 - 15:30', name: 'БД и СУБД', location: '2 корпус, 12 ауд.' }
-                ],
-                'Вторник': [
-                    { time: '8:00 - 9:40', name: 'Комп. сети', location: '105 ауд.' },
-                    { time: '9:50 - 11:30', name: 'БД и СУБД', location: '105 ауд.' },
-                    { time: '12:00 - 13:40', name: 'РМП', location: '105 ауд.' }
-                ],
-                'Среда': [
-                    { time: '8:00 - 9:40', name: 'СЯП', location: '105 ауд.' },
-                    { time: '9:50 - 11:30', name: 'ПССИП', location: '105 ауд.' },
-                    { time: '12:00 - 13:40', name: 'ОПД и УП', location: '209 ауд.' },
-                    { time: '13:50 - 15:30', name: 'БД и СУБД', location: '105 ауд.' }
-                ],
-                'Четверг': [
-                    { time: '8:55 - 9:40', name: 'Кураторский час', location: '2 корпус, 42 ауд.' },
-                    { time: '9:50 - 11:30', name: 'Физ-ра', location: '2 корпус' },
-                    { time: '12:00 - 13:40', name: 'СЯП', location: '105 ауд.' },
-                    { time: '13:50 - 15:30', name: 'Охрана окр. среды', location: '211 ауд.' }
-                ],
-                'Пятница': [
-                    { time: '8:00 - 9:40', name: 'СЯП', location: '105 ауд.' },
-                    { time: '9:50 - 11:30', name: 'РМП', location: '105 ауд.' },
-                    { time: '12:00 - 13:40', name: 'Комп. сети', location: '105 ауд.' },
-                    { time: '13:50 - 14:35', name: 'Информационный час', location: '211 ауд.' }
-                ],
-                'Суббота': [
-                    { time: '8:00 - 9:40', name: 'Комп. сети', location: '105 ауд.' },
-                    { time: '9:50 - 11:30', name: 'Охрана окр. среды', location: '209 ауд.' },
-                    { time: '12:00 - 13:40', name: 'ОПД и УП', location: '209 ауд.' }
-                ]
-            },
-            lower: {
-                'Понедельник': [
-                    { time: '8:00 - 9:40', name: 'Физ-ра', location: '2 корпус' },
-                    { time: '9:50 - 11:30', name: 'ПССИП', location: '2 корпус, 42 ауд.' },
-                    { time: '12:00 - 13:40', name: 'РМП', location: '2 корпус, 42 ауд.' },
-                    { time: '13:50 - 15:30', name: 'БД и СУБД', location: '2 корпус, 12 ауд.' }
-                ],
-                'Вторник': [
-                    { time: '8:00 - 9:40', name: 'Комп. сети', location: '105 ауд.' },
-                    { time: '9:50 - 11:30', name: 'БД и СУБД', location: '105 ауд.' },
-                    { time: '12:00 - 13:40', name: 'Охрана окр. среды', location: '209 ауд.' }
-                ],
-                'Среда': [
-                    { time: '8:00 - 9:40', name: 'СЯП', location: '105 ауд.' },
-                    { time: '9:50 - 11:30', name: 'ПССИП', location: '105 ауд.' },
-                    { time: '12:00 - 13:40', name: 'ОПД и УП', location: '209 ауд.' },
-                    { time: '13:50 - 15:30', name: 'БД и СУБД', location: '105 ауд.' }
-                ],
-                'Четверг': [
-                    { time: '8:55 - 9:40', name: 'Кураторский час', location: '2 корпус, 42 ауд.' },
-                    { time: '9:50 - 11:30', name: 'Физ-ра', location: '2 корпус' },
-                    { time: '12:00 - 13:40', name: 'СЯП', location: '105 ауд.' },
-                    { time: '13:50 - 15:30', name: 'Охрана окр. среды', location: '211 ауд.' }
-                ],
-                'Пятница': [
-                    { time: '8:00 - 9:40', name: 'СЯП', location: '105 ауд.' },
-                    { time: '9:50 - 11:30', name: 'РМП', location: '105 ауд.' },
-                    { time: '12:00 - 13:40', name: 'Комп. сети', location: '105 ауд.' },
-                    { time: '13:50 - 14:35', name: 'Информационный час', location: '211 ауд.' }
-                ],
-                'Суббота': [
-                    { time: '8:00 - 9:40', name: 'Комп. сети', location: '105 ауд.' },
-                    { time: '9:50 - 11:30', name: 'Охрана окр. среды', location: '209 ауд.' },
-                    { time: '12:00 - 13:40', name: 'БД и СУБД', location: '105 ауд.' }
-                ]
-            }
-        };
+  <script>
+    const schedule = {
+      upper: {
+        'Понедельник': [
+          { time: '9:50 - 11:30', name: 'ПССИП', location: '2 корпус, 42 ауд.' },
+          { time: '12:00 - 13:40', name: 'РМП', location: '2 корпус, 42 ауд.' },
+          { time: '13:50 - 15:30', name: 'БД и СУБД', location: '2 корпус, 12 ауд.' }
+        ],
+        'Вторник': [
+          { time: '8:00 - 9:40', name: 'Комп. сети', location: '105 ауд.' },
+          { time: '9:50 - 11:30', name: 'БД и СУБД', location: '105 ауд.' },
+          { time: '12:00 - 13:40', name: 'РМП', location: '105 ауд.' }
+        ],
+        'Среда': [
+          { time: '8:00 - 9:40', name: 'СЯП', location: '105 ауд.' },
+          { time: '9:50 - 11:30', name: 'ПССИП', location: '105 ауд.' },
+          { time: '12:00 - 13:40', name: 'ОПД и УП', location: '209 ауд.' },
+          { time: '13:50 - 15:30', name: 'БД и СУБД', location: '105 ауд.' }
+        ],
+        'Четверг': [
+          { time: '8:55 - 9:40', name: 'Кураторский час', location: '2 корпус, 42 ауд.' },
+          { time: '9:50 - 11:30', name: 'Физ-ра', location: '2 корпус' },
+          { time: '12:00 - 13:40', name: 'СЯП', location: '105 ауд.' },
+          { time: '13:50 - 15:30', name: 'Охрана окр. среды', location: '211 ауд.' }
+        ],
+        'Пятница': [
+          { time: '8:00 - 9:40', name: 'СЯП', location: '105 ауд.' },
+          { time: '9:50 - 11:30', name: 'РМП', location: '105 ауд.' },
+          { time: '12:00 - 13:40', name: 'Комп. сети', location: '105 ауд.' },
+          { time: '13:50 - 14:35', name: 'Информационный час', location: '211 ауд.' }
+        ],
+        'Суббота': [
+          { time: '8:00 - 9:40', name: 'Комп. сети', location: '105 ауд.' },
+          { time: '9:50 - 11:30', name: 'Охрана окр. среды', location: '209 ауд.' },
+          { time: '12:00 - 13:40', name: 'ОПД и УП', location: '209 ауд.' }
+        ]
+      },
+      lower: {
+        'Понедельник': [
+    { time: '8:00 - 9:40', name: 'Физ-ра', location: '2 корпус' },
+    { time: '9:50 - 11:30', name: 'ПССИП', location: '2 корпус, 42 ауд.' },
+    { time: '12:00 - 13:40', name: 'РМП', location: '2 корпус, 42 ауд.' },
+    { time: '13:50 - 15:30', name: 'Бел. яз', location: '2 корпус, 12 ауд.' }
+  ],
+  'Вторник': [
+    { time: '8:00 - 9:40', name: 'Комп. сети', location: '105 ауд.' },
+    { time: '9:50 - 11:30', name: 'БД и СУБД', location: '105 ауд.' },
+    { time: '12:00 - 13:40', name: 'Охрана окр. среды', location: '209 ауд.' }
+  ],
+  'Среда': [
+    { time: '8:00 - 9:40', name: 'СЯП', location: '105 ауд.' },
+    { time: '9:50 - 11:30', name: 'ПССИП', location: '105 ауд.' },
+    { time: '12:00 - 13:40', name: 'ОПД и УП', location: '209 ауд.' },
+    { time: '13:50 - 15:30', name: 'БД и СУБД', location: '105 ауд.' }
+  ],
+  'Четверг': [
+    { time: '8:55 - 9:40', name: 'Кураторский час', location: '2 корпус, 42 ауд.' },
+    { time: '9:50 - 11:30', name: 'Физ-ра', location: '2 корпус' },
+    { time: '12:00 - 13:40', name: 'СЯП', location: '105 ауд.' },
+    { time: '13:50 - 15:30', name: 'Охрана окр. среды', location: '211 ауд.' }
+  ],
+  'Пятница': [
+    { time: '8:00 - 9:40', name: 'СЯП', location: '105 ауд.' },
+    { time: '9:50 - 11:30', name: 'РМП', location: '105 ауд.' },
+    { time: '12:00 - 13:40', name: 'Комп. сети', location: '105 ауд.' },
+    { time: '13:50 - 14:35', name: 'Информационный час', location: '211 ауд.' }
+  ],
+  'Суббота': [
+    { time: '8:00 - 9:40', name: 'Комп. сети', location: '105 ауд.' },
+    { time: '9:50 - 11:30', name: 'Охрана окр. среды', location: '209 ауд.' },
+    { time: '12:00 - 13:40', name: 'БД и СУБД', location: '105 ауд.' }
+  ]
+      }
+    };
 
-        function createDayCard(day, lessons) {
-            const dayCard = document.createElement('div');
-            dayCard.className = 'day-card';
-            
-            // Check if it's current day
-            const today = new Date().toLocaleString('ru', {weekday: 'long'});
-            if (today.toLowerCase() === day.toLowerCase()) {
-                dayCard.classList.add('current-day');
-            }
-            
-            const dayHeader = document.createElement('h2');
-            dayHeader.className = 'day-header';
-            dayHeader.textContent = day;
-            dayCard.appendChild(dayHeader);
+    // Function to format date and time
+    function formatDateTime(date) {
+      return date.toLocaleString('ru-RU', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      }).replace(',', '');
+    }
 
-            lessons.forEach(lesson => {
-                const lessonDiv = document.createElement('div');
-                lessonDiv.className = 'lesson';
-                
-                const timeDiv = document.createElement('div');
-                timeDiv.className = 'lesson-time';
-                timeDiv.textContent = lesson.time;
-                
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'lesson-name';
-                nameDiv.textContent = lesson.name;
-                
-                const locationDiv = document.createElement('div');
-                locationDiv.className = 'lesson-location';
-                locationDiv.textContent = lesson.location;
-                
-                lessonDiv.appendChild(timeDiv);
-                lessonDiv.appendChild(nameDiv);
-                lessonDiv.appendChild(locationDiv);
-                dayCard.appendChild(lessonDiv);
-            });
+    // Function to determine current week type
+    function getCurrentWeekType() {
+      // Reference date: February 21, 2025 (Friday) - Known to be Upper week
+      const referenceDate = new Date(2025, 1, 21);
+      const currentDate = new Date();
+      
+      // Calculate the number of weeks between the reference date and current date
+      const msInWeek = 7 * 24 * 60 * 60 * 1000;
+      const weeksDifference = Math.floor((currentDate - referenceDate) / msInWeek);
+      
+      return weeksDifference % 2 === 0 ? "верхняя" : "нижняя";
+    }
 
-            return dayCard;
+    // Function to update the week indicator and datetime display
+    function updateIndicators() {
+      const weekType = getCurrentWeekType();
+      const currentDate = new Date();
+      
+      document.getElementById('currentWeekIndicator').textContent = `Сейчас: ${weekType} неделя`;
+    }
+
+    function createDayButtons() {
+      const daysGrid = document.querySelector('.days-grid');
+      const today = new Date().toLocaleString('ru', { weekday: 'long' });
+      
+      Object.keys(schedule.upper).forEach(day => {
+        const button = document.createElement('button');
+        button.className = 'day-button';
+        button.setAttribute('data-day', day);
+
+        const dayName = document.createElement('span');
+        dayName.className = 'day-name';
+        dayName.textContent = day;
+        
+        const lessonCount = document.createElement('span');
+        lessonCount.className = 'week-type';
+        lessonCount.textContent = `${schedule.upper[day].length} пар`;
+
+        if (today.toLowerCase() === day.toLowerCase()) {
+          const todayBadge = document.createElement('span');
+          todayBadge.className = 'today-badge';
+          todayBadge.textContent = 'Сегодня';
+          button.appendChild(todayBadge);
         }
 
-        function populateWeek(weekType) {
-            const container = document.getElementById(`${weekType}-week`);
-            container.innerHTML = '';
-            
-            Object.entries(schedule[weekType]).forEach(([day, lessons]) => {
-                container.appendChild(createDayCard(day, lessons));
-            });
+        button.appendChild(dayName);
+        button.appendChild(lessonCount);
+        daysGrid.appendChild(button);
+      });
+    }
+
+    function showSchedule(day, weekType) {
+      const modalOverlay = document.getElementById('modal-overlay');
+      const scheduleDisplay = document.getElementById('schedule-display');
+      const lessons = schedule[weekType][day];
+      
+      scheduleDisplay.innerHTML = '';
+      lessons.forEach(lesson => {
+        const lessonDiv = document.createElement('div');
+        lessonDiv.className = 'lesson';
+        
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'lesson-time';
+        timeDiv.innerHTML = '<span>🕒</span>' + lesson.time;
+        
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'lesson-name';
+        nameDiv.textContent = lesson.name;
+        
+        const locationDiv = document.createElement('div');
+        locationDiv.className = 'lesson-location';
+        locationDiv.innerHTML = '<span>📍</span>' + lesson.location;
+        
+        lessonDiv.appendChild(timeDiv);
+        lessonDiv.appendChild(nameDiv);
+        lessonDiv.appendChild(locationDiv);
+        scheduleDisplay.appendChild(lessonDiv);
+      });
+
+      modalOverlay.classList.add('active');
+    }
+
+    // Initialize
+    createDayButtons();
+    updateIndicators();
+
+    // Update indicators every minute
+    setInterval(updateIndicators, 60000);
+
+    // Event Listeners
+    document.querySelectorAll('.day-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const day = btn.getAttribute('data-day');
+        const weekType = document.querySelector('.week-btn.active').dataset.week;
+        
+        document.querySelectorAll('.day-button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        showSchedule(day, weekType);
+      });
+    });
+
+    document.querySelectorAll('.week-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const weekType = btn.dataset.week;
+        const activeDay = document.querySelector('.day-button.active');
+        
+        document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        if (activeDay) {
+          showSchedule(activeDay.getAttribute('data-day'), weekType);
         }
+      });
+    });
 
-        // Initialize timetables
-        populateWeek('upper');
-        populateWeek('lower');
-
-        // Week toggle functionality
-        document.querySelectorAll('.week-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const weekType = btn.dataset.week;
-                
-                // Update buttons
-                document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                // Show selected week
-                document.getElementById('upper-week').classList.toggle('hidden', weekType !== 'upper');
-                document.getElementById('lower-week').classList.toggle('hidden', weekType !== 'lower');
-            });
-        });
-    </script>
+    document.getElementById('modal-overlay').addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('active');
+      }
+    });
+  </script>
 </body>
 </html>
