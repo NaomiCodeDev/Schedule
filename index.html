@@ -554,18 +554,20 @@
     });
 
     document.querySelectorAll('.week-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const weekType = btn.dataset.week;
-        const activeDay = document.querySelector('.day-button.active');
-        
-        document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        if (activeDay) {
-          showSchedule(activeDay.getAttribute('data-day'), weekType);
-        }
-      });
-    });
+  btn.addEventListener('click', () => {
+    const weekType = btn.dataset.week;
+    
+    // Deselect all week buttons and day buttons
+    document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.day-button').forEach(b => b.classList.remove('active'));
+    
+    // Mark current week button as active
+    btn.classList.add('active');
+    
+    // Optionally, hide the modal if it's open
+    document.getElementById('modal-overlay').classList.remove('active');
+  });
+});
 
     document.getElementById('modal-overlay').addEventListener('click', function(e) {
       if (e.target === this) {
